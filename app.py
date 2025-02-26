@@ -1,25 +1,11 @@
 import streamlit as st
 from PIL import Image
-import numpy as np
-from sklearn.cluster import KMeans
 
-def reduce_colors(image, num_colors):
-    # Convertir l'image en tableau numpy
-    image_array = np.array(image)
-
-    # Redimensionner l'image en un tableau 2D de pixels
-    pixels = image_array.reshape(-1, 3)
-
-    # Appliquer KMeans pour réduire le nombre de couleurs
-    kmeans = KMeans(n_clusters=num_colors)
-    kmeans.fit(pixels)
-
-    # Remplacer chaque pixel par la couleur du centroïde le plus proche
-    reduced_colors = kmeans.cluster_centers_[kmeans.labels_]
-    reduced_image_array = reduced_colors.reshape(image_array.shape)
-
-    # Convertir le tableau numpy en image
-    reduced_image = Image.fromarray(np.uint8(reduced_image_array))
+def reduce_colors_with_pillow(image, num_colors):
+    # Convertir l'image en mode 'P' avec une palette de couleurs
+    reduced_image = image.convert("P", palette=Image.ADAPTIVE, colors=num_colors)
+    # Convertir l'image en mode 'RGB' pour l'affichage
+    reduced_image = reduced_image.convert("RGB")
     return reduced_image
 
 def main():
@@ -41,16 +27,23 @@ def main():
         num_colors = len(set(image.getdata()))
         st.write(f"Nombre de couleurs: {num_colors}")
 
-        # Redimensionner l'image
-        new_width = st.number_input("Nouvelle largeur", min_value=1, max_value=width, value=width)
-        new_height = st.number_input("Nouvelle hauteur", min_value=1, max_value=height, value=height)
-        resized_image = image.resize((new_width, new_height))
-        st.image(resized_image, caption="Image redimensionnée", use_column_width=True)
+        # Formulaire pour les paramètres
+        with st.form("image_processing_form"):
+            new_width = st.number_input("Nouvelle largeur", min_value=1, max_value=width, value=width)
+            new_height = st.number_input("Nouvelle hauteur", min_value=1, max_value=height, value=height)
+            new_num_colors = st.number_input("Nombre de couleurs souhaité", min_value=1, max_value=num_colors, value=num_colors)
 
-        # Réduire le nombre de couleurs
-        new_num_colors = st.number_input("Nombre de couleurs souhaité", min_value=1, max_value=num_colors, value=num_colors)
-        reduced_image = reduce_colors(resized_image, new_num_colors)
-        st.image(reduced_image, caption="Image avec couleurs réduites", use_column_width=True)
+            # Bouton de soumission
+            submitted = st.form_submit_button("Soumettre")
+
+            if submitted:
+                # Redimensionner l'image
+                resized_image = image.resize((new_width, new_height))
+                st.image(resized_image, caption="Image redimensionnée", use_column_width=True)
+
+                # Réduire le nombre de couleurs
+                reduced_image = reduce_colors_with_pillow(resized_image, new_num_colors)
+                st.image(reduced_image, caption="Image avec couleurs réduites", use_column_width=True)
 
 if __name__ == "__main__":
     main()
