@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 
 def reduce_colors_with_pillow(image, num_colors):
     # Convertir l'image en mode 'P' avec une palette de couleurs
@@ -7,6 +7,22 @@ def reduce_colors_with_pillow(image, num_colors):
     # Convertir l'image en mode 'RGB' pour l'affichage
     reduced_image = reduced_image.convert("RGB")
     return reduced_image
+
+def add_brick_grid(image):
+    # Doubler la taille de l'image
+    width, height = image.size
+    enlarged_image = image.resize((width * 2, height * 2), Image.NEAREST)
+
+    # Dessiner la grille
+    draw = ImageDraw.Draw(enlarged_image)
+    for y in range(0, height * 2, 2):
+        for x in range(0, width * 2, 2):
+            if (y // 2) % 2 == 0:
+                draw.rectangle([x, y, x + 2, y + 2], outline="black")
+            else:
+                draw.rectangle([x - 1, y, x + 1, y + 2], outline="black")
+
+    return enlarged_image
 
 def main():
     st.title("Application de traitement d'image")
@@ -44,6 +60,10 @@ def main():
                 # Réduire le nombre de couleurs
                 reduced_image = reduce_colors_with_pillow(resized_image, new_num_colors)
                 st.image(reduced_image, caption="Image avec couleurs réduites", use_column_width=True)
+
+                # Ajouter la grille
+                final_image = add_brick_grid(reduced_image)
+                st.image(final_image, caption="Image avec grille en mur de brique", use_column_width=True)
 
 if __name__ == "__main__":
     main()
