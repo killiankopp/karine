@@ -52,10 +52,10 @@ def main():
         st.write(f"{width}px x {height}px - {num_colors} couleurs")
 
         with st.form("image_processing_form"):
-            new_width = st.number_input("Nb perle en largeur", min_value=1, max_value=width, value=width)
-            new_height = st.number_input("NB perle en  hauteur", min_value=1, max_value=height, value=height)
-            new_num_colors = st.number_input("Nombre de couleurs", min_value=1, max_value=num_colors, value=num_colors)
-            line_thickness = st.number_input("Épaisseur de la grille", min_value=1, value=1)
+            new_width = st.number_input("Nb perle en largeur", min_value=1, max_value=width, value=60)
+            new_height = st.number_input("NB perle en  hauteur", min_value=1, max_value=height, value=60)
+            new_num_colors = st.number_input("Nombre de couleurs", min_value=1, max_value=num_colors, value=8)
+            line_thickness = st.number_input("Épaisseur de la grille", min_value=1, value=2)
             grid_color = st.color_picker("Couleur de la grille", "#000000")
 
             submitted = st.form_submit_button("Soumettre")
@@ -71,7 +71,7 @@ def main():
                     scale_factor=64
                 )
 
-                st.image(final_image, caption="Perles", use_column_width=True)
+                st.image(final_image, caption="Perles", use_container_width=True)
 
 if __name__ == "__main__":
     main()
