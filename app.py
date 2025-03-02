@@ -8,7 +8,19 @@ def reduce_colors_with_pillow(image, num_colors):
     reduced_image = reduced_image.convert("RGB")
     return reduced_image
 
-def add_brick_grid(image, line_thickness=1, grid_color="black", scale_factor=8):
+def crop_image(image, new_width, new_height):
+    # Calculer les dimensions de recadrage
+    width, height = image.size
+    left = (width - new_width) / 2
+    top = (height - new_height) / 2
+    right = (width + new_width) / 2
+    bottom = (height + new_height) / 2
+
+    # Recadrer l'image
+    cropped_image = image.crop((left, top, right, bottom))
+    return cropped_image
+
+def add_brick_grid(image, line_thickness=1, grid_color="black", scale_factor=16):
     # Augmenter la taille de l'image pour un décalage plus fin
     width, height = image.size
     enlarged_image = image.resize((width * scale_factor, height * scale_factor), Image.NEAREST)
@@ -55,16 +67,16 @@ def main():
             submitted = st.form_submit_button("Soumettre")
 
             if submitted:
-                # Redimensionner l'image
-                resized_image = image.resize((new_width, new_height))
-                st.image(resized_image, caption="Image redimensionnée", use_column_width=True)
+                # Recadrer l'image
+                cropped_image = crop_image(image, new_width, new_height)
+                st.image(cropped_image, caption="Image recadrée", use_column_width=True)
 
                 # Réduire le nombre de couleurs
-                reduced_image = reduce_colors_with_pillow(resized_image, new_num_colors)
+                reduced_image = reduce_colors_with_pillow(cropped_image, new_num_colors)
                 st.image(reduced_image, caption="Image avec couleurs réduites", use_column_width=True)
 
                 # Ajouter la grille
-                final_image = add_brick_grid(reduced_image, line_thickness=line_thickness, grid_color=grid_color, scale_factor=8)
+                final_image = add_brick_grid(reduced_image, line_thickness=line_thickness, grid_color=grid_color, scale_factor=16)
                 st.image(final_image, caption="Image avec grille en mur de brique", use_column_width=True)
 
 if __name__ == "__main__":
